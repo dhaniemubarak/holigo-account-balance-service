@@ -1,15 +1,24 @@
 package id.holigo.services.holigoaccountbalanceservice.services;
 
 import id.holigo.services.common.model.AccountBalanceDto;
+import id.holigo.services.common.model.AccountStatementType;
 import id.holigo.services.common.model.DepositDto;
 import id.holigo.services.common.model.PointDto;
 import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatement;
+import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatementSpecification;
 import id.holigo.services.holigoaccountbalanceservice.repositories.AccountStatementRepository;
 import id.holigo.services.holigoaccountbalanceservice.web.mappers.AccountStatementMapper;
+import id.holigo.services.holigoaccountbalanceservice.web.model.AccountStatementPaginate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Date;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,6 +29,13 @@ public class AccountStatementServiceImpl implements AccountStatementService {
     private AccountStatementRepository accountStatementRepository;
 
     private AccountBalanceService accountBalanceService;
+
+    private AccountStatementSpecification accountStatementSpecification;
+
+    @Autowired
+    public void setAccountStatementSpecification(AccountStatementSpecification accountStatementSpecification) {
+        this.accountStatementSpecification = accountStatementSpecification;
+    }
 
     @Autowired
     public void setAccountBalanceService(AccountBalanceService accountBalanceService) {
@@ -105,5 +121,26 @@ public class AccountStatementServiceImpl implements AccountStatementService {
             return pointDto;
         }
         return pointDto;
+    }
+
+    @Override
+    public AccountStatementPaginate getAccountPaginate(Long user, AccountStatementType accountStatementType, Date startDate, Date endDate, PageRequest pageRequest) {
+        Page<AccountStatement> accountStatementPage;
+
+        Specification<AccountStatement> getByType = accountStatementSpecification.getByType(accountStatementType);
+        Specification<AccountStatement> getByDate = accountStatementSpecification.getDateBetween(startDate, endDate);
+
+        accountStatementPage = accountStatementRepository.findAll(Specification.where(getByDate).and(getByType), pageRequest);
+
+
+        return new AccountStatementPaginate(
+                accountStatementPage
+                        .getContent()
+                        .stream()
+                        .map(accountStatementMapper::accountStatementToAccountStatementDto)
+                        .collect(Collectors.toList()),
+                PageRequest.of(accountStatementPage.getPageable().getPageNumber(),
+                    accountStatementPage.getPageable().getPageSize()),
+                accountStatementPage.getTotalElements());
     }
 }

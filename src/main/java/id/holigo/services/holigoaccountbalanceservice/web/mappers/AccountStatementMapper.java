@@ -3,6 +3,7 @@ package id.holigo.services.holigoaccountbalanceservice.web.mappers;
 import id.holigo.services.common.model.DepositDto;
 import id.holigo.services.common.model.PointDto;
 import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatement;
+import id.holigo.services.holigoaccountbalanceservice.web.model.AccountStatementDto;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,4 +20,6 @@ public interface AccountStatementMapper {
     @Mapping(target = "debit", source = "debitAmount")
     @Mapping(target = "credit", source = "creditAmount")
     AccountStatement pointDtoToAccountStatement(PointDto pointDto);
+
+    AccountStatementDto accountStatementToAccountStatementDto(AccountStatement accountStatement);
 }
