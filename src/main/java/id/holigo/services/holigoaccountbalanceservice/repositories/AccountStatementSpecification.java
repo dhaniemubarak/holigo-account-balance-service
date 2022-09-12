@@ -1,6 +1,7 @@
-package id.holigo.services.holigoaccountbalanceservice.domain;
+package id.holigo.services.holigoaccountbalanceservice.repositories;
 
 import id.holigo.services.common.model.AccountStatementType;
+import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatement;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 

@@ -13,7 +13,7 @@ import java.sql.Date;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/accountStatement")
+@RequestMapping("/api/v1/accountStatements")
 public class AccountStatementController {
 
     private final AccountStatementService accountStatementService;

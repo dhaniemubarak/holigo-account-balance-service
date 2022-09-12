@@ -5,7 +5,7 @@ import id.holigo.services.common.model.AccountStatementType;
 import id.holigo.services.common.model.DepositDto;
 import id.holigo.services.common.model.PointDto;
 import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatement;
-import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatementSpecification;
+import id.holigo.services.holigoaccountbalanceservice.repositories.AccountStatementSpecification;
 import id.holigo.services.holigoaccountbalanceservice.repositories.AccountStatementRepository;
 import id.holigo.services.holigoaccountbalanceservice.web.mappers.AccountStatementMapper;
 import id.holigo.services.holigoaccountbalanceservice.web.model.AccountStatementPaginate;
