@@ -40,5 +40,7 @@ public class DepositDto implements Serializable {
 
     private String invoiceNumber;
 
+    private String category;
+
     private String message;
 }

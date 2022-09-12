@@ -1,31 +1,22 @@
-package id.holigo.services.holigoaccountbalanceservice.domain;
+package id.holigo.services.holigoaccountbalanceservice.web.model;
 
 import id.holigo.services.common.model.AccountStatementType;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-public class AccountStatement {
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
-    @Type(type = "org.hibernate.type.UUIDCharType")
+public class AccountStatementDto implements Serializable {
+
     private UUID id;
 
     private Long userId;
@@ -54,12 +45,17 @@ public class AccountStatement {
 
     private String invoiceNumber;
 
+    /**
+     * PAYMENT
+     * REFUND
+     * TOP_UP
+     * WITHDRAWAL
+     */
+    private String category;
+
     @CreationTimestamp
     private Timestamp createdAt;
 
     @UpdateTimestamp
     private Timestamp updatedAt;
-
-    @Column(length = 20, columnDefinition = "varchar(20) default 'PAYMENT'")
-    private String category = "PAYMENT";
 }
