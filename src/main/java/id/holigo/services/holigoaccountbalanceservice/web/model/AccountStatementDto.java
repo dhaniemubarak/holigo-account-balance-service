@@ -29,10 +29,6 @@ public class AccountStatementDto implements Serializable {
 
     private BigDecimal credit;
 
-    private String informationIndex;
-
-    private String informationValue;
-
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false)
     @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID transactionId;
@@ -45,6 +41,7 @@ public class AccountStatementDto implements Serializable {
 
     private String invoiceNumber;
 
+    private String information;
     /**
      * PAYMENT
      * REFUND
