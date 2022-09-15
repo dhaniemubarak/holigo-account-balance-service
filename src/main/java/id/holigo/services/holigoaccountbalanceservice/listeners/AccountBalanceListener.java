@@ -37,8 +37,6 @@ public class AccountBalanceListener {
     @Transactional
     @JmsListener(destination = JmsConfig.CREATE_ACCOUNT_BALANCE)
     public void listenForCreateAccountBalance(@Payload AccountBalanceDto accountBalanceDto, @Headers MessageHeaders headers, Message message) throws JMSException {
-        log.info("listenForCreateAccountBalance is running...");
-        log.info("AccountBalanceDto -> {}", accountBalanceDto);
         AccountBalanceDto newAccountBalance = accountBalanceService.createAccountBalance(accountBalanceDto);
         jmsTemplate.convertAndSend(message.getJMSReplyTo(), newAccountBalance);
 
