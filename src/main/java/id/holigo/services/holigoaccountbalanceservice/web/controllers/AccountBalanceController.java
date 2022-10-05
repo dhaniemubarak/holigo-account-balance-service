@@ -27,7 +27,7 @@ public class AccountBalanceController {
     }
 
     @GetMapping("/api/v1/accountBalance")
-    public ResponseEntity<AccountBalanceDto> createAccountBalance(@RequestHeader("user-id") Long userId) {
+    public ResponseEntity<AccountBalanceDto> getAccountBalance(@RequestHeader("user-id") Long userId) {
         Optional<AccountBalance> fetchAccountBalance = accountBalanceRepository.findById(userId);
         if (fetchAccountBalance.isPresent()) {
             return new ResponseEntity<>(accountBalanceMapper.accountBalanceToAccountBalanceDto(fetchAccountBalance.get()), HttpStatus.OK);
