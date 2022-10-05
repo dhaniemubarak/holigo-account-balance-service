@@ -12,7 +12,6 @@ public class JmsConfig {
 
     public static final String CREATE_DEPOSIT_ACCOUNT_STATEMENT = "create-deposit-account-statement";
     public static final String CREATE_ACCOUNT_BALANCE = "create-account-balance";
-
     public static final String CREATE_POINT_ACCOUNT_STATEMENT = "create-point-account-statement";
 
     @Bean
