@@ -5,6 +5,7 @@ import id.holigo.services.holigoaccountbalanceservice.services.AccountStatementS
 import id.holigo.services.holigoaccountbalanceservice.web.model.AccountStatementPaginate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class AccountStatementController {
             pageSize = DEFAULT_PAGE_SIZE;
         }
 
-        return new ResponseEntity<>(accountStatementService.getAccountPaginate(userId, accountStatementType, startDate, endDate, PageRequest.of(pageNumber, pageSize)), HttpStatus.OK);
+        return new ResponseEntity<>(accountStatementService.getAccountPaginate(userId, accountStatementType, startDate, endDate, PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending())), HttpStatus.OK);
 
     }
 

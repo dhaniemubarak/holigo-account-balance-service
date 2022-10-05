@@ -6,7 +6,9 @@ import id.holigo.services.common.model.DepositDto;
 import id.holigo.services.common.model.PointDto;
 import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatement;
 import id.holigo.services.holigoaccountbalanceservice.repositories.AccountStatementRepository;
+import id.holigo.services.holigoaccountbalanceservice.repositories.specification.GenericAndSpecification;
 import id.holigo.services.holigoaccountbalanceservice.repositories.specification.SearchCriteria;
+import id.holigo.services.holigoaccountbalanceservice.repositories.specification.SearchOperation;
 import id.holigo.services.holigoaccountbalanceservice.web.mappers.AccountStatementMapper;
 import id.holigo.services.holigoaccountbalanceservice.web.model.AccountStatementPaginate;
 import lombok.extern.slf4j.Slf4j;
@@ -130,7 +132,10 @@ public class AccountStatementServiceImpl implements AccountStatementService {
         Specification<AccountStatement> getByType = accountStatementSpecification.getByType(accountStatementType);
         Specification<AccountStatement> getByDate = accountStatementSpecification.getDateBetween(startDate, endDate);
 
-        accountStatementPage = accountStatementRepository.findAll(Specification.where(getByDate).and(getByType), pageRequest);
+        GenericAndSpecification<AccountStatement> genericAndSpecification = new GenericAndSpecification<>();
+        genericAndSpecification.add(new SearchCriteria("userId", user,SearchOperation.EQUAL));
+
+        accountStatementPage = accountStatementRepository.findAll(Specification.where(getByDate).and(getByType).and(genericAndSpecification), pageRequest);
 
 
         return new AccountStatementPaginate(
