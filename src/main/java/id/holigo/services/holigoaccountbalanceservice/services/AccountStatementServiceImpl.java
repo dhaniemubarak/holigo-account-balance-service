@@ -5,8 +5,8 @@ import id.holigo.services.common.model.AccountStatementType;
 import id.holigo.services.common.model.DepositDto;
 import id.holigo.services.common.model.PointDto;
 import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatement;
-import id.holigo.services.holigoaccountbalanceservice.repositories.AccountStatementSpecification;
 import id.holigo.services.holigoaccountbalanceservice.repositories.AccountStatementRepository;
+import id.holigo.services.holigoaccountbalanceservice.repositories.specification.SearchCriteria;
 import id.holigo.services.holigoaccountbalanceservice.web.mappers.AccountStatementMapper;
 import id.holigo.services.holigoaccountbalanceservice.web.model.AccountStatementPaginate;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +30,10 @@ public class AccountStatementServiceImpl implements AccountStatementService {
 
     private AccountBalanceService accountBalanceService;
 
-    private AccountStatementSpecification accountStatementSpecification;
+    private SearchCriteria.AccountStatementSpecification accountStatementSpecification;
 
     @Autowired
-    public void setAccountStatementSpecification(AccountStatementSpecification accountStatementSpecification) {
+    public void setAccountStatementSpecification(SearchCriteria.AccountStatementSpecification accountStatementSpecification) {
         this.accountStatementSpecification = accountStatementSpecification;
     }
 
