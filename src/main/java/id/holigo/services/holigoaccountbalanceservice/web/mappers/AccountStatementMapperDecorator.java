@@ -41,7 +41,9 @@ public abstract class AccountStatementMapperDecorator implements AccountStatemen
     @Override
     public AccountStatementDto accountStatementToAccountStatementDto(AccountStatement accountStatement) {
         AccountStatementDto accountStatementDto = accountStatementMapper.accountStatementToAccountStatementDto(accountStatement);
-        accountStatementDto.setInformation(messageSource.getMessage(accountStatement.getInformationIndex(), null, LocaleContextHolder.getLocale()));
+        accountStatementDto.setInformation(messageSource.getMessage(accountStatement.getInformationIndex(),
+                (accountStatement.getInformationValue() != null) ? accountStatement.getInformationValue().split("#") : null,
+                LocaleContextHolder.getLocale()));
         return accountStatementDto;
     }
 }
