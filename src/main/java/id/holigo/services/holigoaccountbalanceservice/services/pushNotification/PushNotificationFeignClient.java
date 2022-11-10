@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface PushNotificationFeignClient {
     String PUSH_NOTIFICATION_PATH = "/api/v1/pushNotifications";
 
-    @RequestMapping(method = RequestMethod.GET, value = PUSH_NOTIFICATION_PATH)
+    @RequestMapping(method = RequestMethod.POST, value = PUSH_NOTIFICATION_PATH)
     ResponseEntity<HttpStatus> postPushNotification(@RequestBody PushNotificationDto pushNotificationDto,
                                                     @RequestHeader("user-id") Long userId,
                                                     @RequestHeader("Accept-Language") String locale);
