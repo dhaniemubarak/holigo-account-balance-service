@@ -1,14 +1,12 @@
 package id.holigo.services.holigoaccountbalanceservice.services;
 
-import id.holigo.services.common.model.AccountBalanceDto;
-import id.holigo.services.common.model.AccountStatementType;
-import id.holigo.services.common.model.DepositDto;
-import id.holigo.services.common.model.PointDto;
+import id.holigo.services.common.model.*;
 import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatement;
 import id.holigo.services.holigoaccountbalanceservice.repositories.AccountStatementRepository;
 import id.holigo.services.holigoaccountbalanceservice.repositories.specification.GenericAndSpecification;
 import id.holigo.services.holigoaccountbalanceservice.repositories.specification.SearchCriteria;
 import id.holigo.services.holigoaccountbalanceservice.repositories.specification.SearchOperation;
+import id.holigo.services.holigoaccountbalanceservice.services.pushNotification.PushNotificationService;
 import id.holigo.services.holigoaccountbalanceservice.web.mappers.AccountStatementMapper;
 import id.holigo.services.holigoaccountbalanceservice.web.model.AccountStatementPaginate;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +17,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,6 +36,13 @@ public class AccountStatementServiceImpl implements AccountStatementService {
     private AccountBalanceService accountBalanceService;
 
     private SearchCriteria.AccountStatementSpecification accountStatementSpecification;
+
+    private PushNotificationService pushNotificationService;
+
+    @Autowired
+    public void setPushNotificationService(PushNotificationService pushNotificationService) {
+        this.pushNotificationService = pushNotificationService;
+    }
 
     @Autowired
     public void setAccountStatementSpecification(SearchCriteria.AccountStatementSpecification accountStatementSpecification) {
@@ -57,6 +67,7 @@ public class AccountStatementServiceImpl implements AccountStatementService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public DepositDto createStatement(DepositDto depositDto) {
+        AccountStatement accountStatement;
         try {
             AccountBalanceDto accountBalanceDto = accountBalanceService.updateDeposit(
                     AccountBalanceDto.builder().userId(depositDto.getUserId())
@@ -65,16 +76,12 @@ public class AccountStatementServiceImpl implements AccountStatementService {
                                     .subtract(depositDto.getDebitAmount())).build()
             );
             if (accountBalanceDto == null) {
-                log.info("accountBalanceDto is not null");
                 throw new Exception();
             }
 
-            AccountStatement accountStatement = accountStatementMapper.depositDtoToAccountStatement(depositDto);
+            accountStatement = accountStatementMapper.depositDtoToAccountStatement(depositDto);
             accountStatementRepository.save(accountStatement);
             if (accountStatement.getId() != null) {
-                log.info("accountStatement is not null");
-
-                log.info("accountBalanceDto deposit -> {}", accountBalanceDto.getDeposit());
                 if (accountBalanceDto.getDeposit().equals(depositDto.getDeposit()
                         .add(depositDto.getCreditAmount())
                         .subtract(depositDto.getDebitAmount()))) {
@@ -86,6 +93,9 @@ public class AccountStatementServiceImpl implements AccountStatementService {
         } catch (Exception e) {
             log.info("Catch e -> {}", e.getMessage());
             return depositDto;
+        }
+        if (depositDto.getIsValid()) {
+            sendNotification(accountStatement);
         }
         return depositDto;
     }
@@ -133,7 +143,7 @@ public class AccountStatementServiceImpl implements AccountStatementService {
         Specification<AccountStatement> getByDate = accountStatementSpecification.getDateBetween(startDate, endDate);
 
         GenericAndSpecification<AccountStatement> genericAndSpecification = new GenericAndSpecification<>();
-        genericAndSpecification.add(new SearchCriteria("userId", user,SearchOperation.EQUAL));
+        genericAndSpecification.add(new SearchCriteria("userId", user, SearchOperation.EQUAL));
 
         accountStatementPage = accountStatementRepository.findAll(Specification.where(getByDate).and(getByType).and(genericAndSpecification), pageRequest);
 
@@ -145,7 +155,27 @@ public class AccountStatementServiceImpl implements AccountStatementService {
                         .map(accountStatementMapper::accountStatementToAccountStatementDto)
                         .collect(Collectors.toList()),
                 PageRequest.of(accountStatementPage.getPageable().getPageNumber(),
-                    accountStatementPage.getPageable().getPageSize()),
+                        accountStatementPage.getPageable().getPageSize()),
                 accountStatementPage.getTotalElements());
+    }
+
+    private void sendNotification(AccountStatement accountStatement) {
+        try {
+            DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+            DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
+            symbols.setGroupingSeparator('.');
+            formatter.setDecimalFormatSymbols(symbols);
+            String descriptionValue = accountStatement.getCredit().compareTo(BigDecimal.ZERO) > 0 ? formatter.format(accountStatement.getCredit()) : formatter.format(accountStatement.getDebit());
+            PushNotificationDto pushNotificationDto = PushNotificationDto.builder()
+                    .userId(accountStatement.getUserId())
+                    .category(PushNotificationCategoryEnum.TRANSACTION)
+                    .descriptionIndex(accountStatement.getInformationIndex() + "Description")
+                    .descriptionValue(descriptionValue)
+                    .titleIndex(accountStatement.getInformationIndex()).build();
+
+            pushNotificationService.sendPushNotification(pushNotificationDto);
+        } catch (Exception e) {
+            log.error("Error : {}", e.getMessage());
+        }
     }
 }
