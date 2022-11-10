@@ -70,6 +70,11 @@ public class AccountStatementServiceImpl implements AccountStatementService {
         this.accountStatementMapper = accountStatementMapper;
     }
 
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public DepositDto createStatement(DepositDto depositDto) {
