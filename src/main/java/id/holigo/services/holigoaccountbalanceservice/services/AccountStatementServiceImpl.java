@@ -1,5 +1,7 @@
 package id.holigo.services.holigoaccountbalanceservice.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import id.holigo.services.common.model.*;
 import id.holigo.services.holigoaccountbalanceservice.domain.AccountStatement;
 import id.holigo.services.holigoaccountbalanceservice.repositories.AccountStatementRepository;
@@ -22,12 +24,16 @@ import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class AccountStatementServiceImpl implements AccountStatementService {
+
+    private ObjectMapper objectMapper;
 
     private AccountStatementMapper accountStatementMapper;
 
@@ -161,6 +167,8 @@ public class AccountStatementServiceImpl implements AccountStatementService {
 
     private void sendNotification(AccountStatement accountStatement) {
         try {
+            Map<String, String> result = new HashMap<>();
+            result.put("page", "/holicash");
             DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
             DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
             symbols.setGroupingSeparator('.');
@@ -172,6 +180,7 @@ public class AccountStatementServiceImpl implements AccountStatementService {
                     .descriptionIndex(accountStatement.getInformationIndex() + "Description")
                     .descriptionValue(descriptionValue)
                     .icon(accountStatement.getTransactionType())
+                    .data(objectMapper.convertValue(result, JsonNode.class))
                     .titleIndex(accountStatement.getInformationIndex()).build();
 
             pushNotificationService.sendPushNotification(pushNotificationDto);
