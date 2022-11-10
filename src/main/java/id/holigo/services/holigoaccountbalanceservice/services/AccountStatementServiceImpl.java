@@ -171,6 +171,7 @@ public class AccountStatementServiceImpl implements AccountStatementService {
                     .category(PushNotificationCategoryEnum.TRANSACTION)
                     .descriptionIndex(accountStatement.getInformationIndex() + "Description")
                     .descriptionValue(descriptionValue)
+                    .icon(accountStatement.getTransactionType())
                     .titleIndex(accountStatement.getInformationIndex()).build();
 
             pushNotificationService.sendPushNotification(pushNotificationDto);
